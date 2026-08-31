@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCTiers Draft</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>⛏ MCTiers Draft</h1>
+  <p class="subtitle">Bid on real MCTiers.com PvPers with your friends</p>
+</header>
+
+<!-- SETUP SCREEN -->
+<section id="screen-setup" class="screen">
+  <div class="panel">
+    <h2>1. Drafters</h2>
+    <div id="drafter-list"></div>
+    <button id="add-drafter" class="btn-secondary" type="button">+ Add Drafter</button>
+  </div>
+
+  <div class="panel">
+    <h2>2. Rules</h2>
+    <div class="form-row">
+      <label for="starting-budget">Starting budget per drafter ($)</label>
+      <input type="number" id="starting-budget" value="20" min="1" step="1">
+    </div>
+    <div class="form-row">
+      <label for="picks-per-drafter">Players each drafter must draft</label>
+      <input type="number" id="picks-per-drafter" value="4" min="1" step="1">
+    </div>
+    <div class="form-row">
+      <label for="gamemode-select">Gamemode (ranks players by this tier list)</label>
+      <select id="gamemode-select"></select>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>3. Player Pool</h2>
+    <p class="hint">Real players &amp; tiers pulled from the MCTiers.com API. Uncheck anyone you don't want in the draft, or search to narrow the list.</p>
+    <input type="text" id="pool-search" placeholder="Search players...">
+    <div class="pool-actions">
+      <button type="button" id="pool-select-all" class="btn-tiny">Select All</button>
+      <button type="button" id="pool-select-none" class="btn-tiny">Select None</button>
+      <span id="pool-count" class="pool-count"></span>
+    </div>
+    <div id="pool-list" class="pool-list"></div>
+
+    <details class="custom-player">
+      <summary>+ Add a custom player</summary>
+      <div class="form-row">
+        <label for="custom-name">Name</label>
+        <input type="text" id="custom-name" placeholder="e.g. YourFriend123">
+      </div>
+      <div class="form-row">
+        <label for="custom-tier">Tier for selected gamemode</label>
+        <select id="custom-tier"></select>
+      </div>
+      <button type="button" id="custom-add-btn" class="btn-secondary">Add Player</button>
+    </details>
+  </div>
+
+  <button id="start-draft" class="btn-primary" type="button">Start Draft</button>
+  <p id="setup-error" class="error-text"></p>
+</section>
+
+<!-- DRAFT SCREEN -->
+<section id="screen-draft" class="screen hidden">
+  <div class="draft-layout">
+    <div class="draft-main">
+      <div id="nomination-banner" class="nomination-banner"></div>
+
+      <div id="nominate-controls" class="nominate-controls">
+        <button id="nominate-random" class="btn-primary" type="button">🎲 Nominate Random Player</button>
+        <div class="nominate-manual">
+          <input type="text" id="nominate-search" placeholder="...or search a specific player to nominate">
+          <div id="nominate-search-results" class="search-results"></div>
+        </div>
+      </div>
+
+      <div id="auction-card" class="auction-card hidden">
+        <div class="auction-player">
+          <div class="auction-player-name" id="auction-name"></div>
+          <div class="auction-player-tier" id="auction-tier"></div>
+          <div class="auction-player-region" id="auction-region"></div>
+        </div>
+        <div class="auction-bid">
+          <div class="current-bid-label">Current Bid</div>
+          <div class="current-bid-amount" id="current-bid-amount">$0</div>
+          <div class="current-bid-holder" id="current-bid-holder"></div>
+        </div>
+        <div class="auction-turn" id="auction-turn"></div>
+        <div class="auction-actions" id="auction-actions"></div>
+      </div>
+
+      <div id="log-panel" class="log-panel">
+        <h3>Draft Log</h3>
+        <ul id="log-list"></ul>
+      </div>
+    </div>
+
+    <aside class="draft-sidebar" id="draft-sidebar"></aside>
+  </div>
+</section>
+
+<!-- RESULTS SCREEN -->
+<section id="screen-results" class="screen hidden">
+  <h2>🏆 Draft Results</h2>
+  <div id="results-summary" class="results-summary"></div>
+  <div id="results-rosters" class="results-rosters"></div>
+  <button id="restart-btn" class="btn-primary" type="button">Start New Draft</button>
+</section>
+
+<script src="js/players.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
