@@ -86,6 +86,16 @@ function maxBidFor(drafter) {
   return drafter.budget - picksNeededAfterThis;
 }
 
+function setHtml(id, html) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+}
+
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
 function addLog(msg, cls) {
   state.log.push({ msg, cls });
   renderLog();
@@ -334,13 +344,12 @@ function startAuction(player) {
   document.getElementById("nominate-controls").classList.add("hidden");
   document.getElementById("auction-card").classList.remove("hidden");
 
-  document.getElementById("auction-avatar").innerHTML = avatarImgHtml(player, 72);
-  document.getElementById("auction-name").textContent = player.name;
+  setHtml("auction-avatar", avatarImgHtml(player, 72));
+  setText("auction-name", player.name);
   const tier = playerTierForMode(player, state.gamemode);
-  document.getElementById("auction-tier").innerHTML =
-    `<span class="tier-badge ${tierClass(tier)}">${formatTier(tier)}</span> — ${state.gamemode}`;
-  document.getElementById("auction-all-tiers").innerHTML = allTierBadgesHtml(player);
-  document.getElementById("auction-region").textContent = player.region ? `Region: ${player.region}` : "";
+  setHtml("auction-tier", `<span class="tier-badge ${tierClass(tier)}">${formatTier(tier)}</span> — ${state.gamemode}`);
+  setHtml("auction-all-tiers", allTierBadgesHtml(player));
+  setText("auction-region", player.region ? `Region: ${player.region}` : "");
 
   addLog(`${state.drafters[state.nominatorIndex].name} nominated ${player.name}.`);
   renderAuction();
