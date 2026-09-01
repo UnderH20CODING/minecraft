@@ -73,6 +73,14 @@ function allPlayers() {
   return [...PLAYERS, ...state.customPlayers];
 }
 
+// Players eligible for a given gamemode/kit — "Overall" allows everyone,
+// any specific kit only includes players who have actually been tested/tiered in it.
+function playersForMode(mode) {
+  const players = allPlayers();
+  if (mode === "Overall") return players;
+  return players.filter(p => !!p.tiers[mode]);
+}
+
 function activeDrafters() {
   return state.drafters.filter(d => d.roster.length < state.picksPerDrafter);
 }
@@ -162,7 +170,7 @@ function renderPoolList() {
   const search = document.getElementById("pool-search").value.trim().toLowerCase();
   const mode = document.getElementById("gamemode-select").value;
   const list = document.getElementById("pool-list");
-  const players = allPlayers()
+  const players = playersForMode(mode)
     .filter(p => search === "" || p.name.toLowerCase().includes(search))
     .sort((a, b) => tierRank(playerTierForMode(a, mode)) - tierRank(playerTierForMode(b, mode)));
 
@@ -188,13 +196,19 @@ function renderPoolList() {
 }
 
 function setAllPoolChecks(val) {
-  for (const p of allPlayers()) poolChecks[p.name] = val;
+  const mode = document.getElementById("gamemode-select").value;
+  for (const p of playersForMode(mode)) poolChecks[p.name] = val;
   renderPoolList();
 }
 
 function updatePoolCount() {
-  const n = Object.values(poolChecks).filter(Boolean).length;
-  document.getElementById("pool-count").textContent = `${n} selected`;
+  const mode = document.getElementById("gamemode-select").value;
+  const eligible = playersForMode(mode);
+  const n = eligible.filter(p => poolChecks[p.name]).length;
+  document.getElementById("pool-count").textContent =
+    mode === "Overall"
+      ? `${n} selected`
+      : `${n} selected · ${eligible.length} players tested for ${mode}`;
 }
 
 function addCustomPlayer() {
@@ -233,10 +247,11 @@ function startDraft() {
 
   const gamemode = document.getElementById("gamemode-select").value;
   const selectedNames = new Set(Object.entries(poolChecks).filter(([, v]) => v).map(([k]) => k));
-  const pool = allPlayers().filter(p => selectedNames.has(p.name));
+  const pool = playersForMode(gamemode).filter(p => selectedNames.has(p.name));
 
   if (pool.length < names.length * picksPerDrafter) {
-    return showSetupError(`Not enough players selected (${pool.length}) to fill ${names.length} drafters × ${picksPerDrafter} picks.`);
+    const modeNote = gamemode === "Overall" ? "" : ` who have tested for ${gamemode}`;
+    return showSetupError(`Not enough players selected${modeNote} (${pool.length}) to fill ${names.length} drafters × ${picksPerDrafter} picks.`);
   }
 
   state.drafters = names.map(n => ({
