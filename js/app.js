@@ -51,7 +51,7 @@ function playerTierForMode(player, mode) {
 
 function avatarUrl(player, size) {
   if (!player.uuid) return null;
-  return `https://crafatar.com/avatars/${player.uuid}?size=${size || 32}&overlay&default=MHF_Steve`;
+  return `https://mc-heads.net/avatar/${player.uuid}/${size || 32}`;
 }
 
 function avatarImgHtml(player, size) {
