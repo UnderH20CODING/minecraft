@@ -49,6 +49,26 @@ function playerTierForMode(player, mode) {
   return player.tiers[mode] || null;
 }
 
+function avatarUrl(player, size) {
+  if (!player.uuid) return null;
+  return `https://crafatar.com/avatars/${player.uuid}?size=${size || 32}&overlay&default=MHF_Steve`;
+}
+
+function avatarImgHtml(player, size) {
+  const url = avatarUrl(player, size);
+  if (!url) return `<div class="avatar avatar-fallback" style="width:${size || 32}px;height:${size || 32}px;"></div>`;
+  return `<img class="avatar" src="${url}" width="${size || 32}" height="${size || 32}" alt="" loading="lazy" onerror="this.classList.add('avatar-fallback');this.removeAttribute('src');">`;
+}
+
+function allTierBadgesHtml(player) {
+  const modes = GAME_MODES.filter(m => m !== "Overall" && player.tiers[m]);
+  if (modes.length === 0) return `<span class="tier-badge tnone">Unranked</span>`;
+  return modes
+    .sort((a, b) => tierRank(player.tiers[a]) - tierRank(player.tiers[b]))
+    .map(m => `<span class="tier-badge ${tierClass(player.tiers[m])}" title="${m}">${m.slice(0, 3)} ${player.tiers[m]}</span>`)
+    .join("");
+}
+
 function allPlayers() {
   return [...PLAYERS, ...state.customPlayers];
 }
@@ -139,14 +159,14 @@ function renderPoolList() {
   list.innerHTML = "";
   for (const p of players) {
     if (!(p.name in poolChecks)) poolChecks[p.name] = true;
-    const tier = playerTierForMode(p, mode);
     const item = document.createElement("label");
     item.className = "pool-item";
     item.innerHTML = `
       <input type="checkbox" ${poolChecks[p.name] ? "checked" : ""}>
+      ${avatarImgHtml(p, 28)}
       <span class="pname">${p.name}</span>
-      <span class="tier-badge ${tierClass(tier)}">${tier || "—"}</span>
       <span class="pregion">${p.region || ""}</span>
+      <span class="pool-tiers">${allTierBadgesHtml(p)}</span>
     `;
     item.querySelector("input").addEventListener("change", e => {
       poolChecks[p.name] = e.target.checked;
@@ -279,7 +299,7 @@ function poolSearchHandler() {
   if (!q) { results.innerHTML = ""; return; }
   const matches = state.pool.filter(p => p.name.toLowerCase().includes(q)).slice(0, 8);
   results.innerHTML = matches.map(p =>
-    `<div class="sr-item" data-name="${p.name}">${p.name} <span class="tier-badge ${tierClass(playerTierForMode(p, state.gamemode))}">${playerTierForMode(p, state.gamemode) || "—"}</span></div>`
+    `<div class="sr-item" data-name="${p.name}">${avatarImgHtml(p, 22)} ${p.name} <span class="tier-badge ${tierClass(playerTierForMode(p, state.gamemode))}">${playerTierForMode(p, state.gamemode) || "—"}</span></div>`
   ).join("");
   results.querySelectorAll(".sr-item").forEach(el => {
     el.addEventListener("click", () => {
@@ -314,10 +334,12 @@ function startAuction(player) {
   document.getElementById("nominate-controls").classList.add("hidden");
   document.getElementById("auction-card").classList.remove("hidden");
 
+  document.getElementById("auction-avatar").innerHTML = avatarImgHtml(player, 72);
   document.getElementById("auction-name").textContent = player.name;
   const tier = playerTierForMode(player, state.gamemode);
   document.getElementById("auction-tier").innerHTML =
     `<span class="tier-badge ${tierClass(tier)}">${formatTier(tier)}</span> — ${state.gamemode}`;
+  document.getElementById("auction-all-tiers").innerHTML = allTierBadgesHtml(player);
   document.getElementById("auction-region").textContent = player.region ? `Region: ${player.region}` : "";
 
   addLog(`${state.drafters[state.nominatorIndex].name} nominated ${player.name}.`);
@@ -445,7 +467,7 @@ function renderSidebar() {
           <span class="dbudget">$${d.budget}</span>
         </div>
         <ul class="drafter-roster">
-          ${d.roster.map(r => `<li><span>${r.player.name}</span><span class="price">$${r.price}</span></li>`).join("")}
+          ${d.roster.map(r => `<li>${avatarImgHtml(r.player, 18)}<span>${r.player.name}</span><span class="price">$${r.price}</span></li>`).join("")}
         </ul>
         <div class="drafter-picks-left">${d.roster.length}/${state.picksPerDrafter} picks${full ? " — full" : ""}</div>
       </div>
@@ -480,8 +502,7 @@ function endDraft() {
       <div class="score-line">Power score: ${score.toFixed(1)} · Spent $${d.startingBudget - d.budget} · $${d.budget} left</div>
       <ul>
         ${d.roster.map(r => {
-          const tier = playerTierForMode(r.player, state.gamemode);
-          return `<li><span>${r.player.name} <span class="tier-badge ${tierClass(tier)}">${tier || "—"}</span></span><span>$${r.price}</span></li>`;
+          return `<li class="results-player"><span class="results-player-main">${avatarImgHtml(r.player, 22)}<span>${r.player.name}</span><span class="price">$${r.price}</span></span><span class="results-player-tiers">${allTierBadgesHtml(r.player)}</span></li>`;
         }).join("") || "<li>No players drafted</li>"}
       </ul>
     </div>

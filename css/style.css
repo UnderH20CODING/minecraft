@@ -199,6 +199,60 @@ button { font-family: inherit; cursor: pointer; }
 .tier-badge.t5 { background: var(--tier5); }
 .tier-badge.tnone { background: #4a4f61; color: var(--text-dim); }
 
+.avatar {
+  border-radius: 5px;
+  image-rendering: pixelated;
+  background: var(--bg-panel-2);
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.avatar-fallback {
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, #4a4f61, #2c313f);
+}
+
+.pool-tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
+  max-width: 260px;
+}
+.pool-item { flex-wrap: wrap; }
+
+.auction-avatar { margin-bottom: 10px; }
+.auction-avatar .avatar { width: 72px; height: 72px; border-radius: 8px; }
+.auction-player-all-tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.drafter-roster li { align-items: center; gap: 6px; }
+.drafter-roster li .avatar { border-radius: 4px; }
+
+.results-player {
+  flex-direction: column;
+  align-items: stretch !important;
+  gap: 4px;
+  padding: 8px 0 !important;
+}
+.results-player-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: space-between;
+}
+.results-player-main .avatar { border-radius: 4px; }
+.results-player-main .price { color: var(--accent); margin-left: auto; }
+.results-player-tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
 /* Draft screen */
 .draft-layout {
   display: grid;
