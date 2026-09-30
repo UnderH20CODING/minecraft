@@ -1,0 +1,16 @@
+{
+  "name": "bir-autopilot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Turns a Philippine small business's sales log into BIR-ready worksheets (2551Q, 1701Q, 1701/1701A), books of accounts, and SMS/Messenger deadline reminders.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "remind": "node --disable-warning=ExperimentalWarning src/cli.js remind",
+    "deadlines": "node --disable-warning=ExperimentalWarning src/cli.js deadlines",
+    "test": "node --disable-warning=ExperimentalWarning --test \"test/*.test.js\""
+  }
+}

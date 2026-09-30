@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BIR Autopilot</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">₱</span>
+      <div>
+        <h1>BIR Autopilot</h1>
+        <p id="business-line" class="muted">Set up your business profile to begin</p>
+      </div>
+    </div>
+    <label class="year-picker">Tax year
+      <select id="year"></select>
+    </label>
+  </header>
+
+  <main>
+    <section id="next-deadline" class="hero" hidden></section>
+
+    <section>
+      <ul id="warnings" class="warnings"></ul>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Returns by quarter</h2>
+        <p id="totals" class="muted"></p>
+      </div>
+      <div id="quarters" class="quarter-grid"></div>
+      <div id="annual" class="card annual"></div>
+    </section>
+
+    <section class="two-col">
+      <div class="card">
+        <h2>Import sales &amp; expenses</h2>
+        <p class="muted">CSV from your POS, spreadsheet, or GCash/Maya exports. Sales need <code>date</code>, <code>invoice_no</code>, <code>amount</code>, plus optional <code>customer</code>, <code>description</code>, <code>withheld</code> (from Form 2307). Expenses need <code>date</code>, <code>amount</code>, plus optional <code>supplier</code>, <code>description</code>, <code>category</code>.</p>
+        <form id="import-form">
+          <label>Sales CSV <input type="file" name="sales" accept=".csv,text/csv"></label>
+          <label>Expenses CSV <input type="file" name="expenses" accept=".csv,text/csv"></label>
+          <label class="check"><input type="checkbox" name="replace" checked> Replace existing data for the selected year</label>
+          <div class="actions">
+            <button type="submit">Import</button>
+            <button type="button" id="load-sample" class="secondary">Load sample data</button>
+          </div>
+        </form>
+        <p class="muted small">Templates: <a href="/samples/sales-sample.csv" download>sales</a> · <a href="/samples/expenses-sample.csv" download>expenses</a></p>
+        <div id="import-result" class="result"></div>
+      </div>
+
+      <div class="card">
+        <h2>Business profile</h2>
+        <form id="profile-form" class="profile">
+          <label>Business name <input name="businessName" autocomplete="organization"></label>
+          <div class="row">
+            <label>TIN <input name="tin" placeholder="000-000-000-00000"></label>
+            <label>RDO <input name="rdo" placeholder="e.g. 043"></label>
+          </div>
+          <label>Income tax option
+            <select name="incomeTaxOption">
+              <option value="graduated">Graduated rates (plus 3% percentage tax)</option>
+              <option value="8%">8% on gross sales (in lieu of percentage tax)</option>
+            </select>
+          </label>
+          <label>Deductions (graduated only)
+            <select name="deductionMethod">
+              <option value="osd">Optional Standard Deduction (40%)</option>
+              <option value="itemized">Itemized (uses your expense log)</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" name="mixedIncome"> I also earn a salary (mixed-income earner)</label>
+          <label class="check"><input type="checkbox" name="vatRegistered"> VAT-registered</label>
+          <h3>Reminders</h3>
+          <div class="row">
+            <label>Mobile for SMS <input name="phone" placeholder="09171234567" inputmode="tel"></label>
+            <label>Messenger PSID <input name="messengerPsid" placeholder="from your Page webhook"></label>
+          </div>
+          <label>Remind me this many days before <input name="reminderDays" placeholder="7, 3, 1, 0"></label>
+          <div class="actions"><button type="submit">Save profile</button></div>
+        </form>
+      </div>
+    </section>
+
+    <section class="two-col">
+      <div class="card">
+        <h2>Filing calendar</h2>
+        <ul id="calendar" class="calendar"></ul>
+      </div>
+      <div class="card">
+        <h2>Reminder preview</h2>
+        <p class="muted">Shows what would be sent on a given day. Real sends run from cron with <code>npm run remind</code>.</p>
+        <form id="reminder-form" class="inline">
+          <input type="date" name="today" required>
+          <button type="submit" class="secondary">Preview</button>
+        </form>
+        <ul id="reminder-result" class="reminders"></ul>
+
+        <h2>Books of accounts</h2>
+        <p class="muted">Columnar journals generated from your logs, ready to print for manual books or submit as loose-leaf.</p>
+        <div class="actions">
+          <a id="dl-receipts" class="button secondary" download>Cash Receipts Journal</a>
+          <a id="dl-disbursements" class="button secondary" download>Cash Disbursements Journal</a>
+        </div>
+
+        <h2>Late filing estimate</h2>
+        <form id="penalty-form" class="penalty">
+          <label>Basic tax <input name="tax" inputmode="decimal" placeholder="5000" required></label>
+          <label>Due date <input type="date" name="due" required></label>
+          <label>Paid on <input type="date" name="paid" required></label>
+          <button type="submit" class="secondary">Estimate</button>
+        </form>
+        <p id="penalty-result" class="result"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="muted small">
+    BIR Autopilot prepares worksheets for you to review and enter in eBIRForms, eFPS or ORUS. It is not tax advice and not affiliated with the Bureau of Internal Revenue. Check figures against current BIR issuances or with a CPA before filing.
+  </footer>
+
+  <template id="worksheet-template">
+    <dialog class="worksheet">
+      <article>
+        <header>
+          <h2 class="ws-title"></h2>
+          <p class="ws-meta muted"></p>
+        </header>
+        <table><tbody class="ws-rows"></tbody></table>
+        <p class="ws-note muted small"></p>
+        <div class="actions no-print">
+          <button type="button" class="ws-print">Print worksheet</button>
+          <button type="button" class="ws-close secondary">Close</button>
+        </div>
+      </article>
+    </dialog>
+  </template>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
